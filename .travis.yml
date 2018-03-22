@@ -1,0 +1,52 @@
+
+language: cpp
+sudo: required
+
+dist: trusty
+
+
+compiler:
+  - gcc
+
+os:
+  - linux
+
+
+env:
+  global:
+    - GH_REPO_NAME: rvbaa
+    - GH_REPO_REF: https://github.com/rpng/rvbaa.git
+
+notifications:
+  email:
+    on_success: never
+    on_failure: never
+
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - wget
+      - build-essential
+      - cmake
+      - libpython2.7
+      - python-numpy
+      - libboost-dev
+      - libboost-python-dev		
+      - libopenblas-dev
+      - libprotobuf-dev
+      - libleveldb-dev 
+      - libsnappy-dev 
+      - libopencv-dev
+      - libhdf5-serial-dev
+      - protobuf-compiler
+      - git
+script:
+  - git clone https://github.com/BVLC/caffe.git
+  - cd caffe && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make -j
+  - cd ~
+  - mkdir build && cd build
+  - cmake .. && make
+
