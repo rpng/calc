@@ -1,8 +1,8 @@
 #include "deeplcd.h"
 
 
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 /*************************************************************************
 * Here is quick cpu demo using a few images from the Kitti odometry dataset
