@@ -1,6 +1,6 @@
 # DeepLCD
 
-A C++ library for online SLAM loop closure, using RVBAA models. 
+A C++ library for online SLAM loop closure, using CALC models. 
 Included with the shared library are default models (see get_model.sh), which are downloaded on compilation, a useful demo, unit testing (CPU tests only for now), and a speed test.
 
 ## Dependencies
