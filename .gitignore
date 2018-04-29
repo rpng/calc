@@ -14,7 +14,7 @@ build
 *.pyc
 train_logs
 plots
-*.tar.gz
+calc.tar.gz
 DeepLCD/rvbaa_model
 Original.jpg
 Warped.jpg
