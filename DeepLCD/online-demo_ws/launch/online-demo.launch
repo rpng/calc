@@ -1,19 +1,23 @@
 <?xml version="1.0"?>
 <launch>
-
-    <node pkg="deeplcd" type="online-demo" name="deeplcd" output="screen">
+   
+    <node pkg="deeplcd" type="online-demo" name="deeplcd" output="screen" cwd="node">
         <param name="net_def" type="string" value="$(find deeplcd)/../devel/calc_model/deploy.prototxt" />
         <param name="weights" type="string" value="$(find deeplcd)/../devel/calc_model/calc.caffemodel" />
         <param name="gpu" type="int" value="0" />
         <param name="min_loop_hyp_cnt" type="int" value="2" />
-        <param name="base_thresh" type="double" value="0.5" />
+        <param name="base_thresh" type="double" value="0.97" />
 	<!-- If true, it parses a TransformStamped topic, otherwise just a PointStampeds topic. Both go into the odometry displayed in rviz -->
         <param name="full_transform" type="bool" value="0" />
-        <param name="pos_topic" type="string" value="/leica/position" />
-
+        <param name="pos_topic" type="string" value="/kitti/position" />
+        <param name="im_topic" type="string" value="/kitti/stereo/left" />
+	
     </node>
+
+    <!-- dummy frame -->
     <node pkg="tf2_ros" type="static_transform_publisher" name="frame_0" args="0.0 0.0 0.0 0 0 0 1 world my_frame" />-->
+
     <!-- Visualization -->
-    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_toto" args="-d $(find deeplcd)/../launch/rviz.rviz -f base_link" /> 
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz_deeplcd" args="-d $(find deeplcd)/../launch/rviz.rviz -f base_link" /> 
 
 </launch>

@@ -16,9 +16,10 @@ uint32_t i = 1;
 visualization_msgs::Marker line_strip, loop_lines;
 std::vector<geometry_msgs::Point> db_points;
 std::vector<cv::Mat> kf;
+std::vector<int> loop_ids;
 int loop_hyp_cnt = 0;
 int min_loop_hyp_cnt;
-float thresh;
+double thresh;
 
 bool detect_loop(const cv::Mat& im);
 void mono_callback(const sensor_msgs::ImageConstPtr& msg);

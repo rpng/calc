@@ -59,4 +59,5 @@ $ speed-test <mem dir> <live dir> <(optional) GPU_ID (default=-1 for cpu)>
 
 where mem/live dir are directories containing images to use in the test. For example, if you have two directories for left/right stereo pairs, you can throw those in the arguments. GPU_ID defaults to -1, which means use the CPU, but just use the number of the desired GPU to run it on that device.
 
-
+## Online ROS Demo
+See the README under online-demo_ws to see how to run the online (real-time) demo!
