@@ -248,18 +248,18 @@ def get_prec_recall(net_def_path='proto/calc_deploy.prototxt', net_model_path='m
 
 	precisions = []
 	recalls = []
-	thresholds = []
+	threshold = -1.0
 
 	for j in range(len(nets)):
 		precision, recall, threshold = precision_recall_curve(correct[j], scores[j])
 		precisions.append(precision)
 		recalls.append(recall)
-		perf_prec = precision[:-1] == 1
-		if np.any(perf_prec):	
-			thresholds.append(np.max(threshold[perf_prec])) # get the largest threshold so that presicion is 1
-		else:
-			thresholds.append(-1)
-	print "\nAvg threshold to minimize recall while precision is 1 =", sum(thresholds) / len(thresholds)
+		if len(nets) == 1: # Only get threshold if there's one net. Otherwise we're just coparing them and don't care about a threshold yet
+			perf_prec = precision[:-1] == 1
+			if np.any(perf_prec):	
+				# We want the highest recall rate with perfect precision as our a-priori threshold
+				threshold = np.max(threshold[perf_prec]) # get the largest threshold so that presicion is 1
+	print("\nThreshold for max recall with 1.0 precision =", threshold )
 	precision_alex = None
 	recall_alex = None
 	if alexnet is not None:
@@ -417,7 +417,7 @@ def view_forward_pass(im1_fl, im2_fl, net_def_path='proto/deploy.prototxt', net_
 	net.blobs['X1'].data[...] = transformer.preprocess('X1', im2)
 	net.forward()
 	relu23 = net.blobs['relu3'].data[0,0,:,:]
-	
+		
 	plt.axis('off')
 	plt.imshow(relu13)
 	plt.show()	
