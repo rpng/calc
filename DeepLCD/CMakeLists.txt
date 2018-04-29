@@ -14,11 +14,13 @@ set(ENDL "${Esc}[m")
 
 MESSAGE("${GREEN}Build type: ${CMAKE_BUILD_TYPE}${ENDL}")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -ffast-math -march=native ")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -ffast-math -march=native -std=c++11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall -O3 -march=native ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -march=native -std=c++11")
+
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules) # FindEigen3.cmake
 
 find_package(Boost COMPONENTS filesystem REQUIRED)
-find_package(OpenCV 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 find_package(CUDA QUIET)
@@ -27,8 +29,11 @@ if (NOT Caffe_ROOT_DIR)
 	set(Caffe_ROOT_DIR $ENV{HOME}/caffe)
 endif()
 
+MESSAGE("${GREEN}Using Caffe_ROOT_DIR: ${Caffe_ROOT_DIR}${ENDL}")
 set(Caffe_LIBS ${Caffe_ROOT_DIR}/build/lib/libcaffe.so)
 set(Caffe_INCLUDE_DIRS ${Caffe_ROOT_DIR}/build/install/include)
+MESSAGE("Caffe_LIBS: ${Caffe_LIBS}")
+MESSAGE("Caffe_INCLUDE_DIRS: ${Caffe_INCLUDE_DIRS}")
 
 include_directories(
 	${OpenCV_INCLUDE_DIR}

@@ -1,6 +1,6 @@
 #include "caffe/caffe.hpp"
 
-#include "opencv2/core.hpp"
+#include "opencv2/core/core.hpp"
 
 #include <Eigen/Core>
 
@@ -126,62 +126,3 @@ public:
 
 
 } // end namespace 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

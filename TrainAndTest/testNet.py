@@ -259,7 +259,7 @@ def get_prec_recall(net_def_path='proto/calc_deploy.prototxt', net_model_path='m
 			if np.any(perf_prec):	
 				# We want the highest recall rate with perfect precision as our a-priori threshold
 				threshold = np.max(threshold[perf_prec]) # get the largest threshold so that presicion is 1
-	print("\nThreshold for max recall with 1.0 precision =", threshold )
+	print "\nThreshold for max recall with 1.0 precision = %f" % (threshold) 
 	precision_alex = None
 	recall_alex = None
 	if alexnet is not None:
@@ -277,7 +277,7 @@ def get_prec_recall(net_def_path='proto/calc_deploy.prototxt', net_model_path='m
 	return precisions, recalls, precision_alex, recall_alex, precision_hog, recall_hog, precision_dbow, recall_dbow
 
 
-def plot(net_def_path='proto/deploy.prototxt', net_model_path=['model/Ours.caffemodel'], data_path="/home/nate/data/QUT_walk_CALC_Test", num_include=7, title='Precision-Recall Curve', resize_net=False, alexnet_proto_path=None, alexnet_weights=None):
+def plot(net_def_path='proto/deploy.prototxt', net_model_path=['model/Ours.caffemodel'], data_path="test_data/CampusLoopDataset", num_include=7, title='Precision-Recall Curve', resize_net=False, alexnet_proto_path=None, alexnet_weights=None):
 	t0 = time()
 
 	if isinstance(net_model_path, basestring): # someone only inputed a single string, so make it a list so that this code works

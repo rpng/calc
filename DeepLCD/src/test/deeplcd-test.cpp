@@ -1,8 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
-
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "deeplcd.h"
 
 std::vector<std::string> fls = {"000000.png", "001000.png", "002000.png"};
@@ -37,7 +36,7 @@ cv::Mat load_and_test(std::string curr)
 
 TEST(DeepLCDTest, TestDefaultConstructor)
 {
-	test_lcd= new deeplcd::DeepLCD();
+	test_lcd = new deeplcd::DeepLCD();
 	EXPECT_TRUE(test_lcd) << "Default constructor created a NULL pointer\n";
 	EXPECT_TRUE(test_lcd->autoencoder) << "Default constructor could not load net\n";
 }

@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
         test_parser.add_argument('-m', '--model', dest='model_path', nargs='*', help='The file names with full paths of the desired caffemodels for the precision-recall curve.', default="model/Ours.caffemodel", type=str)
 
-        test_parser.add_argument('-d', '--data-path', dest='data_path', nargs='?', help='The path to your dataset. Setup with matching images with corresponding filenames in <dataset_path>/live and <dataset_path>/memory', default=expanduser("~") + "/data/QUT_walk_CALC_Test", type=str)
+        test_parser.add_argument('-d', '--data-path', dest='data_path', nargs='?', help='The path to your dataset. Setup with matching images with corresponding filenames in <dataset_path>/live and <dataset_path>/memory', default="test_data/CampusLoopDataset", type=str)
 
 	test_parser.add_argument('-n', '--num-include', dest='num_include', nargs='?', help="Number of images in a sequence to count as a match. Example, if '-n5' is used, Image-7 will count as a match for Image-5 through Image-9 in the database query.", default=7, type=int) 
 	

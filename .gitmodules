@@ -1,0 +1,3 @@
+[submodule "TrainAndTest/ThirdParty/DBoW2"]
+	path = TrainAndTest/ThirdParty/DBoW2
+	url = https://github.com/nmerrill67/DBoW2

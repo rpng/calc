@@ -42,6 +42,8 @@ This library defines the CALC net and solver files, and can also be used to trai
 
 This library is for generating precision-recall curves, comparing against HOG (as described above), and optionally DBoW2 and AlexNet. It will also tell you the max score threshold that keeps the precision at 1.0 (argmax(recall(threshold)) such that precision=1.0 or -1.0 if there is no threshold). This will be extremely useful when using the DeepLCD library for loop detection. For example, from the Gardens Point walking dataset, comparing left vs right, I found an optimal threshold to be 0.91. You can see how this value varies between datasets in order to choose one for your SLAM system. 
 
+We have provided our own small sample dataset for testing under test_data. It is called the Campus Loop dataset, and provides two sequences of images from a snowy day and a sunny day with large variations in viewpoint. It is the default dataset location for testNet, but you must unpack the tar file first.
+
 ## Cythonize python modules
 
 I added a Makefile to cythonize all of the python to make it a bit faster, especially since writeDatabase and testNet consist of long-running loops. If cython and build-essential is installed, simply run `make` in this dirtectory to cythonize all the python libraries, then run the code from main.py

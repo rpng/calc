@@ -1,4 +1,5 @@
 # CALC
+[![Build Status](https://travis-ci.org/rpng/calc.svg?branch=master)](https://travis-ci.org/rpng/calc)
 
 Convolutional Autoencoder for Loop Closure. A fast deep learning architecture for robust SLAM loop closure, or any other place recognition tasks. Download our pre-trained model with `./DeepLCD/get_model.sh`, or train your own!
 

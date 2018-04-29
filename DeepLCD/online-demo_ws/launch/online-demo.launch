@@ -6,7 +6,7 @@
         <param name="weights" type="string" value="$(find deeplcd)/../devel/calc_model/calc.caffemodel" />
         <param name="gpu" type="int" value="0" />
         <param name="min_loop_hyp_cnt" type="int" value="2" />
-        <param name="base_thresh" type="double" value="0.97" />
+        <param name="base_thresh" type="double" value="0.95" /> <!-- apriori threshold from nordland -->
 	<!-- If true, it parses a TransformStamped topic, otherwise just a PointStampeds topic. Both go into the odometry displayed in rviz -->
         <param name="full_transform" type="bool" value="0" />
         <param name="pos_topic" type="string" value="/kitti/position" />

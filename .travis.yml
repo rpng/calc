@@ -1,52 +1,45 @@
 
 language: cpp
 sudo: required
-
 dist: trusty
-
-
-compiler:
-  - gcc
-
-os:
-  - linux
-
-
+compiler: gcc
+os: linux
 env:
   global:
-    - GH_REPO_NAME: rvbaa
-    - GH_REPO_REF: https://github.com/rpng/rvbaa.git
-
-notifications:
-  email:
-    on_success: never
-    on_failure: never
-
+    - GH_REPO_NAME: calc_test
+    - GH_REPO_REF: https://github.com/nmerrill67/calc_test.git
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - wget
+      # utils
+      - git
+      - autoconf
+
+      # shared deps
       - build-essential
       - cmake
-      - libpython2.7
-      - python-numpy
-      - libboost-dev
-      - libboost-python-dev		
+      - libboost-all-dev
+      - libopencv-dev
+      - libgflags-dev
+
+      # caffe deps
+      #- libpython2.7 # Don't need python for now
+      #- python-numpy
+      #- libboost-python-dev		
       - libopenblas-dev
       - libprotobuf-dev
       - libleveldb-dev 
       - libsnappy-dev 
-      - libopencv-dev
       - libhdf5-serial-dev
       - protobuf-compiler
-      - git
-script:
-  - git clone https://github.com/BVLC/caffe.git
-  - cd caffe && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make -j
-  - cd ~
-  - mkdir build && cd build
-  - cmake .. && make
+      - liblmdb-dev 
+      - libgoogle-glog-dev
 
+      # calc deps
+      - libeigen3-dev
+script:
+   # build caffe and deep-lcd
+   - ./ci/build.sh
