@@ -255,10 +255,10 @@ def get_prec_recall(net_def_path='proto/calc_deploy.prototxt', net_model_path='m
 		precisions.append(precision)
 		recalls.append(recall)
 		if len(nets) == 1: # Only get threshold if there's one net. Otherwise we're just coparing them and don't care about a threshold yet
-			perf_prec = precision[:-1] == 1
+			perf_prec = abs(precision[:-1] - 1.0) <= 1e-6
 			if np.any(perf_prec):	
 				# We want the highest recall rate with perfect precision as our a-priori threshold
-				threshold = np.max(threshold[perf_prec]) # get the largest threshold so that presicion is 1
+				threshold = np.min(threshold[perf_prec]) # get the largest threshold so that presicion is 1
 	print "\nThreshold for max recall with 1.0 precision = %f" % (threshold) 
 	precision_alex = None
 	recall_alex = None

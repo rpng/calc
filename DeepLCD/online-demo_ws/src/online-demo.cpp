@@ -1,40 +1,53 @@
 #include "online-demo.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "opencv2/highgui.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 bool detect_loop(const cv::Mat& im)
 {
-	deeplcd::query_result q = lcd->query(im);
-	bool loop_closed = 0;
-	if (q.score > (float)thresh && std::abs((int)db_points.size()-(int)q.id) > 20)
+	deeplcd::query_result q = lcd->query(im, 20);
+
+	if (q.score > (float)thresh) 
 	{
+		if (loop_hyp_cnt == 0)
+			last_loop_hyp_id = q.id;
+
 		loop_hyp_cnt++;
-		std::cout << "Loop hypothesis strengthened! Curr frame = " << db_points.size() << ", " << q << ", loop_hyp_cnt=" << loop_hyp_cnt <<"\n";
-		if (++loop_hyp_cnt == min_loop_hyp_cnt)
-		{
-			loop_lines.points.push_back(db_points[db_points.size()-min_loop_hyp_cnt/2]); // current point for display (From the middle of the loop hypothesis)
-			loop_lines.points.push_back(db_points[q.id]); // loop point for display
-			loop_closed = 1;
-			std::cout << "Loop Closed! Curr frame = " << db_points.size()-1 << ", " << q << "\n";
-			loop_ids.push_back(db_points.size()-1);
-			loop_ids.push_back(q.id);
-			cv::Size sz = im.size();
-			cv::Mat im_match(sz.height, 2*sz.width, im.type());
-			cv::Mat left(im_match, cv::Rect(0, 0, sz.width, sz.height));
-		    	cv::Mat right(im_match, cv::Rect(sz.width, 0, sz.width, sz.height));
-			im.copyTo(left);
-			kf[q.id].copyTo(right);
-			sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", im_match).toImageMsg();
-			im_pub.publish(msg);
-			loop_hyp_cnt = 0;	
-		}	
+		std::cout << "Loop hypothesis strengthened! Curr frame = " << db_points.size()-1 << ", " << q << ", loop_hyp_cnt=" << loop_hyp_cnt <<"\n";
+
+		if (std::abs(q.id - last_loop_hyp_id) < 2 * min_loop_hyp_cnt) // Check that we are looknig at a query from the same general location
+		{	
+			if (loop_hyp_cnt == min_loop_hyp_cnt)
+			{
+				int mid_frame_id = db_points.size() - 1 - min_loop_hyp_cnt/2; // Index for the middle of the loop hypothesis process
+				loop_lines.points.push_back(db_points[mid_frame_id]); 
+				loop_lines.points.push_back(db_points[q.id]); // loop point for display
+				std::cout << "Loop Closed! Curr frame = " << db_points.size()-1 << ", " << q << "\n";
+				loop_ids.push_back(mid_frame_id);
+				loop_ids.push_back(q.id);
+				cv::Size sz = im.size();
+				cv::Mat im_match(sz.height, 2*sz.width, im.type());
+				cv::Mat left(im_match, cv::Rect(0, 0, sz.width, sz.height));
+				cv::Mat right(im_match, cv::Rect(sz.width, 0, sz.width, sz.height));
+				im.copyTo(left);
+				kf[q.id].copyTo(right);
+				sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", im_match).toImageMsg();
+				im_pub.publish(msg);
+				loop_hyp_cnt = 0;	
+				return 1;
+			}	
+		}
+		else
+		{		
+			loop_hyp_cnt = 0;
+		}
 	}
-	else
+	else 
 	{
 		loop_hyp_cnt = 0;
 	}
-	return loop_closed;
+	return 0;
 }
 void mono_callback(const sensor_msgs::ImageConstPtr& msg)
 {
@@ -58,9 +71,12 @@ void mono_callback(const sensor_msgs::ImageConstPtr& msg)
 		{
 			db_points.push_back(line_strip.points.back());// These are in lieu of keyframes
 			cv::resize(im, im, cv::Size_<uint8_t>(160, 120));
+			cv::equalizeHist(im, im);
 			kf.push_back(im);
-			deeplcd::query_result q;
-			detect_loop(im);
+			if (lcd->db.size() > lcd->n_exclude)
+				detect_loop(im);
+			else
+				lcd->add(im);
 		}
 	}
 	if (loop_lines.points.size() > 0) marker_pub.publish(loop_lines);
@@ -106,6 +122,7 @@ int main(int argc, char** argv)
 	std::cout << "im_topic: " << im_topic << "\npos_topic: " << pos_topic << "\n";
 	printf("gpu: %d\nbase_thresh: %.3f\nfull_transform: %d\nmin_loop_hyp_cnt: %d", gpu_id, thresh, full_transform, min_loop_hyp_cnt);
 	lcd = new deeplcd::DeepLCD(net_def, weights, gpu_id);
+	nh.param<int>("n_exclude", lcd->n_exclude, 30);
 	ros::Subscriber im_sub = nh.subscribe(im_topic, 10, mono_callback);
 	ros::Subscriber pos_sub;
 

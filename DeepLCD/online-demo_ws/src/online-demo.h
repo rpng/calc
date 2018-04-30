@@ -18,6 +18,7 @@ std::vector<geometry_msgs::Point> db_points;
 std::vector<cv::Mat> kf;
 std::vector<int> loop_ids;
 int loop_hyp_cnt = 0;
+long int last_loop_hyp_id = -1;
 int min_loop_hyp_cnt;
 double thresh;
 

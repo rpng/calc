@@ -5,8 +5,9 @@
         <param name="net_def" type="string" value="$(find deeplcd)/../devel/calc_model/deploy.prototxt" />
         <param name="weights" type="string" value="$(find deeplcd)/../devel/calc_model/calc.caffemodel" />
         <param name="gpu" type="int" value="0" />
-        <param name="min_loop_hyp_cnt" type="int" value="2" />
-        <param name="base_thresh" type="double" value="0.95" /> <!-- apriori threshold from nordland -->
+        <param name="min_loop_hyp_cnt" type="int" value="3" />
+        <param name="n_exclude" type="int" value="77" />
+        <param name="base_thresh" type="double" value="0.9" /> <!-- a priori threshold from GP -->
 	<!-- If true, it parses a TransformStamped topic, otherwise just a PointStampeds topic. Both go into the odometry displayed in rviz -->
         <param name="full_transform" type="bool" value="0" />
         <param name="pos_topic" type="string" value="/kitti/position" />

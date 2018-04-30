@@ -46,7 +46,7 @@ DeepLCD::DeepLCD(const std::string& network_definition_file,
 uint32_t DeepLCD::add(const cv::Mat &im)
 {
 	descriptor descr = calcDescr(im); // Calculate the descriptor
-	db.push_front(descr); // push to the database
+	db.push_back(descr); // push to the database
 	return descr.id;
 }
 
@@ -67,14 +67,17 @@ void DeepLCD::query(const descriptor& descr, QueryResults& results, size_t max_r
 	if (results.size() != max_res)
 		results.resize(max_res);
 
+	int i = db.size();
 	for (descriptor d : db)
 	{
 		query_result q(score(d.descr, descr.descr), d.id);
 		results.insertInPlace(q);
+		if (--i == n_exclude)
+			break;
 	}
 
 	if (add_after)
-		db.push_front(descr);
+		db.push_back(descr);
 
 }
 
@@ -90,6 +93,7 @@ query_result DeepLCD::query(const descriptor& descr, bool add_after)
 
 	query_result q(-1.0, 0);
 	float s;
+	int i = db.size();
 	for (descriptor d : db)
 	{
 		s = score(d.descr, descr.descr);
@@ -97,11 +101,13 @@ query_result DeepLCD::query(const descriptor& descr, bool add_after)
 		{
 			q.score = s;
 			q.id = d.id;
-		}
+		}	
+		if (--i == n_exclude)
+			break;
 	}
 
 	if (add_after)
-		db.push_front(descr);
+		db.push_back(descr);
 	return q;
 }
 
