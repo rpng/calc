@@ -16,21 +16,23 @@ bool detect_loop(const cv::Mat& im)
 		loop_hyp_cnt++;
 		std::cout << "Loop hypothesis strengthened! Curr frame = " << db_points.size()-1 << ", " << q << ", loop_hyp_cnt=" << loop_hyp_cnt <<"\n";
 
-		if (std::abs(q.id - last_loop_hyp_id) < 2 * min_loop_hyp_cnt) // Check that we are looknig at a query from the same general location
+		if (std::abs(q.id - last_loop_hyp_id) < 2 * min_loop_hyp_cnt) // Check that we are looking at a query from the same general location
 		{	
 			if (loop_hyp_cnt == min_loop_hyp_cnt)
 			{
 				int mid_frame_id = db_points.size() - 1 - min_loop_hyp_cnt/2; // Index for the middle of the loop hypothesis process
 				loop_lines.points.push_back(db_points[mid_frame_id]); 
 				loop_lines.points.push_back(db_points[q.id]); // loop point for display
+				marker_pub.publish(loop_lines);
 				std::cout << "Loop Closed! Curr frame = " << db_points.size()-1 << ", " << q << "\n";
 				loop_ids.push_back(mid_frame_id);
 				loop_ids.push_back(q.id);
-				cv::Size sz = im.size();
-				cv::Mat im_match(sz.height, 2*sz.width, im.type());
+				cv::Mat curr_im = kf.back(); // Original size image for display
+				cv::Size sz = curr_im.size();
+				cv::Mat im_match(sz.height, 2*sz.width, curr_im.type());
 				cv::Mat left(im_match, cv::Rect(0, 0, sz.width, sz.height));
 				cv::Mat right(im_match, cv::Rect(sz.width, 0, sz.width, sz.height));
-				im.copyTo(left);
+				curr_im.copyTo(left);
 				kf[q.id].copyTo(right);
 				sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "mono8", im_match).toImageMsg();
 				im_pub.publish(msg);
@@ -70,16 +72,18 @@ void mono_callback(const sensor_msgs::ImageConstPtr& msg)
 		if (line_strip.points.size() > 0) 
 		{
 			db_points.push_back(line_strip.points.back());// These are in lieu of keyframes
+			cv::Mat imcp;
+			im.copyTo(imcp);
+			kf.push_back(imcp);
+			
 			cv::resize(im, im, cv::Size_<uint8_t>(160, 120));
 			cv::equalizeHist(im, im);
-			kf.push_back(im);
 			if (lcd->db.size() > lcd->n_exclude)
 				detect_loop(im);
 			else
 				lcd->add(im);
 		}
 	}
-	if (loop_lines.points.size() > 0) marker_pub.publish(loop_lines);
 	//std::cout << "Image\n" << i++ << "\n";
 }
 
@@ -96,7 +100,6 @@ void transform_callback(const geometry_msgs::TransformStampedConstPtr& msg)
 
 void point_callback(const geometry_msgs::PointStampedConstPtr& msg)
 {
-	//printf("\nPoint:\n x:%3.3f y:%3.3f z:%3.3f\n", msg->point.x, msg->point.y, msg->point.z); 
 	geometry_msgs::Point p;
 	p.x = msg->point.x; p.y = msg->point.y; p.z = msg->point.z;
       	line_strip.points.push_back(p);
