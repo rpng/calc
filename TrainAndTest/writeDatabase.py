@@ -16,6 +16,10 @@ from makeNet import create_net, train, moveModel
 from matplotlib import pyplot as plt
 
 class bcolors:
+	"""
+	The colors are just for fun
+	"""
+
 	HEADER = '\033[95m'
 	OKBLUE = '\033[94m'
 	OKGREEN = '\033[0;92m'
@@ -121,6 +125,9 @@ def randPerspectiveWarp(im, w, h, r, ret_pts=False):
 		return im_warp, pts_warp
 
 def showImWarpEx(im_fl, save):
+	"""
+	Show an example of warped images and their corresponding four corner points.
+	"""
 
 	im = cv2.resize(cv2.cvtColor(cv2.imread(im_fl), cv2.COLOR_BGR2GRAY), (256,int(120./160*256)))
 	r = Random(0)
@@ -165,7 +172,7 @@ def showImWarpEx(im_fl, save):
 	plots = os.path.join(os.getcwd(), "plots")
 	from matplotlib import rcParams
 	rcParams['savefig.directory'] = plots
- 	if not os.path.isdir(plots):
+	if not os.path.isdir(plots):
 		os.makedirs(plots)
 	plt.imshow(out_im)
 	plt.axis('off')
@@ -209,7 +216,10 @@ def decideWaitForMem(initBytesNeeded, percentDone, mem):
 def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_model_basename="", test_db=False, debugFlag=False, trainAfter=False):
 
 	"""
-	Creates two tensors of image matrices. The images are read from the filenames in files_list, resized, converted to grayscale if they are color. The images are shuffled to avoid statistical issues with caffe, then another similar tensor is made with the same images with warped perspective for training. The rows correspond to the original <==> warped. The second dimension for channels is singleton, and the last two dimensions are w and h. The dimensionality of the end product is n x 1 x w x h. The end product is created in buffers and written to two LMDBs for X1 and X2 accordingly
+	Creates two tensors of image matrices. The images are read from the filenames in files_list, resized, converted to grayscale if they are color.
+	The images are shuffled to avoid statistical issues with caffe, then randomly swapped.
+	X1 contains just images from each pair, and X2 contains HOG descriptors from the other image of each pair 
+	The end product is created in buffers and written to two LMDBs for X1 and X2 accordingly
 	"""
 
 	if (not data_root=="") and (not data_root.endswith('/')): # expect directory name to have '/' appended
@@ -230,12 +240,9 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 		num_buff = 3
 		bytesNeeded = 0
                 	
-	n_per_buff = int(math.floor(n/num_buff)) # this may truncate a few extra pictures, but if you have 8x10^6, who cares!
-	print bcolors.PURPLE + "Number of buffers: ", num_buff, ", Images per buffer: ", n_per_buff, '\n\n\n\n\n\n\n' + bcolors.ENDC 
+	n_per_buff = int(math.ceil(n/num_buff)) 
+	print bcolors.PURPLE + "Number of buffers: ", num_buff, ", Images per buffer: ", n_per_buff, ", Total image count: " + str(n) + '\n\n\n\n\n\n\n' + bcolors.ENDC
 
-	# We don't need X2 and X1 for functionality, but we do need them for testing.
-	X2 = np.zeros((n_per_buff, n_comp), dtype=np.float32)	# warped version.
-	X1 = np.zeros((n_per_buff, 1, h, w), dtype=np.uint8) # caffe uses single precision, so why waste more space
 	r = Random(0) # make a random number generator instance seeded with 0	
 	if test_db:
 		plt.ion()	
@@ -247,7 +254,7 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 		os.makedirs(data_root+"train_data")
 	# prepare the max database size. There is no harm in making it too big, since this is only the cap, not the actual size. If disk space runs out, it will throw an error and crash anyways
 	map_size = 1024**4 # 1 TB
-	chan = X1.shape[1]
+	chan = 1
 	first_buff_flag = True
 	im_count_tot = 0 # total number of pictures
 	i_to_show = r.randint(0,n_per_buff-1)
@@ -263,7 +270,7 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 			k = 0 # index in X row
 			txn1 = db1.begin(write=True, buffers=True) # start a new transaction for the database
 			txn2 = db2.begin(write=True, buffers=True)
-			with click.progressbar(inds[(j*n_per_buff):((j+1)*n_per_buff - 1)], label=("Progress in buffer "+str(j+1)+" out of " + str(num_buff))) as bar:
+			with click.progressbar(inds[(j*n_per_buff):((j+1)*n_per_buff)], label=("Progress in buffer "+str(j+1)+" out of " + str(num_buff))) as bar:
 				for i in bar: # index in files_list, which is n long
 					im_file = files_list[i]
 					im = cv2.imread(im_file)
@@ -290,12 +297,10 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 					switchFlag = r.randint(0,1)
 					if switchFlag:
 						im1 = im_warp
-						des = hog.compute(im)
+						des = hog.compute(cv2.resize(im, (160,120)))
 					else:
 						im1 = im
-						des = hog.compute(im_warp)
-					X1[k,0,:,:] = im1
-					X2[k,:] = np.reshape(des, (n_comp))
+						des = hog.compute(cv2.resize(im_warp, (160,120)))
 
 					str_id = '{:08}'.format(im_count_tot).encode('ascii') # we only need one str_id as well, since they should be the same for corresponding images
 
@@ -303,26 +308,28 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 					datum1.channels = chan
 					datum1.width = w
 					datum1.height = h
-					datum1.data = X1[k,:,:,:].tobytes() 
+					datum1.data = im1.tobytes() 
 				
 					txn1.put(str_id, datum1.SerializeToString()) # add it to database1
 					datum2 = caffe.proto.caffe_pb2.Datum()
 					datum2.channels = 1
 					datum2.width = 1
 					datum2.height = n_comp
-					datum2.data = X2[k,:].tobytes() 
+					datum2.data = np.reshape(des, (n_comp)).tobytes() 
 						
 					txn2.put(str_id, datum2.SerializeToString()) # add it to database2
 					k += 1
 					im_count_tot += 1
-				# end for i in inds[(j*n_per_buff):((j+1)*n_per_buff - 1)]:
+					if im_count_tot == n-1:
+						break
+				# end for i in inds[(j*n_per_buff):((j+1)*n_per_buff)]:
 			txn1.commit()
 			txn2.commit()
-			if test_db:
-				checkIMDB(X1, X2, db1, db2, range(im_count_tot-n_per_buff+1, im_count_tot)) 
+		# end for j in range(num_buff)
+
 	if trainAfter:
 		if not debugFlag:
-			batch_sz = 768 # our batch size used was 1536 because we used 2 gpus, but this is what is on the prototxt definition file
+			batch_sz = 256 # Use 256 batch size for easy testing on small GPU, can increase to train faster. For multi gpu use the bash script with the caffe executable
 			n_epochs = 43 # We gave our net about 42.25 epochs, so just ceil that number to get 43 epochs
 			its = int(n_epochs * n / batch_sz) # calculate number of its based on data size!! 
 		else:		
@@ -343,43 +350,8 @@ def writeDatabase(outDBNames, files_list, w, h, data_root="", gpu_id=0, prev_mod
 		moveModel(model_dir="calc_" +  time.strftime("%d-%m-%Y_%I%M%S")) # move all the model files to a directory 
 		
 
-def checkIMDB(X1, X2, db1, db2, inds):
-	"""	
-	Testing only. Assert that all of the pictures in the database in key range "inds"  match the original tensor
-	"""
-	print "\nChecking Databases after buffered transaction flush.\n"
-	test = unittest.TestCase('__init__') # create the unittest object for the assertAlmostEqual function
-	txn1 = db1.begin()
-	txn2 = db2.begin()
-	n = len(X1) # the 1st dimension is the lenth, which is N here
-	row = 0 # the row to access in X1/2, not too be confused with the key from the database
-	for i in inds:
-		str_id = '{:08}'.format(i).encode('ascii')
-		print "Checking Image ", str_id
-		raw_datum1 = txn1.get(str_id)	
 
-		datum1 = caffe.proto.caffe_pb2.Datum()
-		datum1.ParseFromString(raw_datum1)		
-		flat_x1 = np.fromstring(datum1.data, dtype=np.uint8)
-		X1_db = flat_x1.reshape(datum1.channels, datum1.height, datum1.width)
-		
-		raw_datum2 = txn2.get(str_id)
-		datum2 = caffe.proto.caffe_pb2.Datum()
-		datum2.ParseFromString(raw_datum2)		
-		X2_db = np.fromstring(datum2.data, dtype=np.float32)
-		
-		for rowI in range(datum1.height):
-			for colI in range(datum1.width):
-				# unit tests. Need asserAlmostEqual because of floating point error
-				test.assertEqual(X1[row,0,rowI,colI], X1_db[0,rowI,colI])
-				
-		for j in range(len(X2_db)):
-				# unit tests. Need asserAlmostEqual because of floating point error
-				test.assertAlmostEqual(X2[row,j], X2_db[j])
-		row += 1
-		print 'Passed\n'
-
-def launch(w, h, dirNameArr, outDBNames, data_root="", gpu_id=0, test_db=False, debugFlag=False, trainAfter=False):
+def launch(w, h, dirNameArr, outDBNames, data_root="", gpu_id=0, test_db=False, debugFlag=False, trainAfter=False, batch_size=256):
 	"""
 	Launch the database writing with the widht and height desired in the database,
 	the list of directory names for the dataset(s), and the names of the output directories

@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	default_X1 = 'X1_Places' 
 	default_X2 = 'X2_Places'
 	default_its = '500000'
-
+	default_batch_sz = 256
 
 	net_parser.add_argument('-x1', dest='X1_lmdb', nargs='?', help='The file name with no path to the database for X1. Default is: '+default_X1, default=default_X1, type=str)
 
@@ -42,6 +42,8 @@ if __name__ == '__main__':
 	net_parser.add_argument('-v', '--view-size', dest='viewSizeFlag', action='store_true', help='If true, the descriptor dimesnions will be printed', default=False)
 
 	net_parser.add_argument('-i', '--its', dest='max_iter', nargs='?', help='The number of iterations to perform on training, default is: ' + default_its , default=default_its, type=str)        
+
+	net_parser.add_argument('-b', '--batch-sz', dest='batch_size', nargs='?', help='Batch size to train with. Deafult is: ' + str(default_batch_sz), default=default_batch_sz, type=int)        
 
 
 	## writeDatabase args ###################################################
@@ -69,6 +71,8 @@ if __name__ == '__main__':
 
 	db_parser.add_argument('-dr', '--data-root', dest='dataRoot', nargs='?', help='Where you want the train_data directory to be placed. Default is $PWD', default="", type=str)                               
 	db_parser.add_argument('-g', '--gpu-id', dest='gpu_id', nargs='?', help='The ID of the gpu to use for training.' , default=0, type=int)        
+
+	db_parser.add_argument('-b', '--batch-sz', dest='batch_size', nargs='?', help='Batch size to train with. Deafult is: ' + str(default_batch_sz), default=default_batch_sz, type=int)        
 
 	## Viewing Warped Images args ###########################################################
 
@@ -99,7 +103,7 @@ if __name__ == '__main__':
 	
 	test_parser = subparsers.add_parser('test', help='Allows for testing net(s) against some optional benchmark algorithms with precision-recall curves, and timing. Also allows for viewing thresholds used in those curves. Run `./main.py test -h` to see all options')
 
-        test_parser.add_argument('-m', '--model', dest='model_path', nargs='*', help='The file names with full paths of the desired caffemodels for the precision-recall curve.', default="model/Ours.caffemodel", type=str)
+        test_parser.add_argument('-m', '--model', dest='model_path', nargs='*', help='The file names with full paths of the desired caffemodels for the precision-recall curve.', default="model/calc.caffemodel", type=str)
 
         test_parser.add_argument('-d', '--data-path', dest='data_path', nargs='?', help='The path to your dataset. Setup with matching images with corresponding filenames in <dataset_path>/live and <dataset_path>/memory', default="test_data/CampusLoopDataset", type=str)
 
@@ -123,7 +127,7 @@ if __name__ == '__main__':
 
 	if args.subparser=='db':
 		from writeDatabase import launch
-		launch(160, 120, args.dirNames, [args.outDBName1, args.outDBName2], data_root=args.dataRoot, gpu_id=args.gpu_id, test_db=args.test, debugFlag=args.debugFlag, trainAfter=args.trainAfter)
+		launch(160, 120, args.dirNames, [args.outDBName1, args.outDBName2], data_root=args.dataRoot, gpu_id=args.gpu_id, test_db=args.test, debugFlag=args.debugFlag, trainAfter=args.trainAfter, batch_size=args.batch_size)
 
 	elif args.subparser=='view':
 		from writeDatabase import showImWarpEx
@@ -140,7 +144,7 @@ if __name__ == '__main__':
 			max_iter = args.max_iter
 			if args.debugFlag:
 				max_iter = '12'
-			create_net(args.X1_lmdb, args.X2_lmdb, max_iter=max_iter, debugFlag=args.debugFlag)
+			create_net(args.X1_lmdb, args.X2_lmdb, max_iter=max_iter, debugFlag=args.debugFlag, batch_size=args.batch_size)
 
 		if args.trainFlag:
 			train('proto/solver.prototxt', snapshot_solver_path=args.snapshotProto, init_weights=args.weightsPath)

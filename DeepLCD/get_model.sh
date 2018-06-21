@@ -16,6 +16,9 @@ wget -O ${DIR}/${TAR} -nc ${URL}
 if [ ! -d "$MODEL_DIR" ]; then
 	echo "Extracting the tar archive into $MODEL_DIR"
 	tar -xzvf ${DIR}/${TAR}
+	# Copy to TrainAndTest/model
+	mkdir -p ../TrainAndTest/model
+	cp ${MODEL_DIR}/*.caffemodel ../TrainAndTest/model
 else
 	echo "Model is already downloaded. Stopping."
 fi

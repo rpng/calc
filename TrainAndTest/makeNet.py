@@ -38,7 +38,7 @@ def relu(inpt):
 	relu = caffe.layers.ReLU(inpt)
 	return relu
 
-def calc(X1_lmdb, X2_lmdb, data_root="", batch_size=768):
+def calc(X1_lmdb, X2_lmdb, data_root="", batch_size=256):
 	"""
 	Network definition and writing to prototxt from lmdb image database. Level Databases are very fast for training use.
 	"""
@@ -186,17 +186,17 @@ def view_output_size():
 	otpt = otpt_raw.copy()
 	print 'output vector shape: ', otpt.shape
 
-def create_net(X1_lmdb, X2_lmdb, max_iter='500000', prefix='"calc"', data_root="", debugFlag=False):
+def create_net(X1_lmdb, X2_lmdb, max_iter='500000', batch_size=256, prefix='"calc"', data_root="", debugFlag=False):
 	"""
 	Define, and save the net. Note that max_iter is too high. This is to prevent undertraining. Since we have all the snapshots, we can cross-validate to find the best iteration
 	"""
-	train_proto, deploy_proto = calc(X1_lmdb, X2_lmdb, data_root=data_root) 
+	train_proto, deploy_proto = calc(X1_lmdb, X2_lmdb, data_root=data_root, batch_size=batch_size) 
 	if not os.path.isdir("proto"):
 		os.makedirs("proto")
 	with open('proto/train.prototxt', 'w') as f:
 		f.write(str(train_proto))
 	with open('proto/deploy.prototxt', 'w') as f:
-		f.write(deploy_proto) # deploy_proto is already string, as I could not figure out how to specify Input dimmension
+		f.write(deploy_proto) # deploy_proto is already string, as I could not figure out how to specify Input dimension
 	print 'Creating solver ...'
 	solver = CaffeSolver(m_iter=max_iter, prefix=prefix, debug=debugFlag)
 	solver.write('proto/solver.prototxt') # create the solver proto as well

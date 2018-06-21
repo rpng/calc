@@ -5,3 +5,19 @@ Convolutional Autoencoder for Loop Closure. A fast deep learning architecture fo
 
 This repo is separated into two modules. TrainAndTest for training and testing models, and DeepLCD, which is a C++ library for online loop closure or image retrieval. See their respective READMEs for details.  
 
+If you use this code in any publication, please cite our paper. The pdf can be found [here](http://www.roboticsproceedings.org/rss14/p32.pdf), and the reference should be in this format:
+
+```
+@InProceedings{Merrill2018RSS,
+  Title                    = {Lightweight Unsupervised Deep Loop Closure},
+  Author                   = {Nate Merrill and Guoquan Huang},
+  Booktitle                = {Proc. of Robotics: Science and Systems (RSS)},
+  Year                     = {2018},
+
+  Address                  = {Pittsburgh, PA},
+  Month                    = jun,
+  Note                     = {(accepted)},
+
+  Timestamp                = {2018.02.06}
+}
+```
