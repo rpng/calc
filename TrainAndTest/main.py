@@ -31,15 +31,15 @@ if __name__ == '__main__':
 
 	net_parser.add_argument('-t', '--train', dest='trainFlag', action='store_true', help='Flag for whether or not to train the proto from the data input', default=False)
 
-	net_parser.add_argument('-s', '--snapshot-path', dest='snapshotProto', nargs='?', help='The file name with full path of the desired sovlerstate snapshot if you wish to train from a previous model. Default is None, where the model will be trained from scratch', default=None, type=str)
+	net_parser.add_argument('-s', '--snapshot-path', dest='snapshotProto', nargs='?', help='The file name with full path of the desired solverstate snapshot if you wish to train from a previous model. Default is None, where the model will be trained from scratch', default=None, type=str)
 
-	net_parser.add_argument('-w', '--weights-path', dest='weightsPath', nargs='?', help='Path too .caffemodel weights from a model to init the weghts from if the solverstate is unavailable, such as models like alexnet', default=None, type=str)
+	net_parser.add_argument('-w', '--weights-path', dest='weightsPath', nargs='?', help='Path too .caffemodel weights from a model to init the weights from for training. Only use if solverstate is unavailable', default=None, type=str)
 
 	net_parser.add_argument('-d', '--define', dest='defineFlag', action='store_true', help='Flag for whether or not to define and print the net and solver definition prototxt to $PWD/proto', default=False)
 
 	net_parser.add_argument('-db', '--debug', dest='debugFlag', action='store_true', help='Flag for whether or not to train the net with only 12 iterations for debugging', default=False)
 
-	net_parser.add_argument('-v', '--view-size', dest='viewSizeFlag', action='store_true', help='If true, the descriptor dimesnions will be printed', default=False)
+	net_parser.add_argument('-v', '--view-size', dest='viewSizeFlag', action='store_true', help='If true, the descriptor dimensions will be printed', default=False)
 
 	net_parser.add_argument('-i', '--its', dest='max_iter', nargs='?', help='The number of iterations to perform on training, default is: ' + default_its , default=default_its, type=str)        
 
