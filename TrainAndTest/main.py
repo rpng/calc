@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
 	db_parser.add_argument('-t', '--test', dest='test', action='store_true', help='Set the flag to test the database by showing images and running unit tests on the image databases', default=False)
 
-	db_parser.add_argument('-d', '--data-dirs', dest='dirNames', nargs='*', help='The space-separated names with full paths of the the directory (directories) containing your dataset(s). Note that if you use glob from the shell, do not use `--data-dirs=<dirs>` or else the literal string will be sent to python', default=defaultDirNameArr, type=str)
+	db_parser.add_argument('-d', '--data-dirs', dest='dirNames', nargs='*', help='The space-separated names with full paths of the the directory (directories) containing your dataset(s). Note that if you use glob from the shell, do not use `--data-dirs=<dirs>` or else the literal string will be sent to python. Use `--data-dirs <dirs>`', default=defaultDirNameArr, type=str)
 
 	db_parser.add_argument('-db', '--debug', dest='debugFlag', action='store_true', help='Flag for whether or not to train the net with only 1 iteration for debugging', default=False) 
 
