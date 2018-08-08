@@ -7,6 +7,7 @@
 #include <ctime>
 #include <stdlib.h>
 #include <math.h>
+#include <numeric>
 
 /*************************************************************************
 * This creates an executable to test both descriptor compute time and query time.
