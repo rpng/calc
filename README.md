@@ -1,4 +1,14 @@
-# CALC
+#   ******      **     **         ****** 
+#  **////**    ****   /**        **////**
+# **    //    **//**  /**       **    // 
+#/**         **  //** /**      /**       
+#/**        **********/**      /**       
+#//**    **/**//////**/**      //**    **
+# //****** /**     /**/******** //****** 
+#  //////  //      // ////////   //////
+
+
+
 [![Build Status](https://travis-ci.org/rpng/calc.svg?branch=master)](https://travis-ci.org/rpng/calc)
 
 Convolutional Autoencoder for Loop Closure. A fast deep learning architecture for robust SLAM loop closure, or any other place recognition tasks. Download our pre-trained model with `./DeepLCD/get_model.sh`, or train your own!
@@ -10,14 +20,10 @@ If you use this code in any publication, please cite our paper. The pdf can be f
 ```
 @InProceedings{Merrill2018RSS,
   Title                    = {Lightweight Unsupervised Deep Loop Closure},
-  Author                   = {Nate Merrill and Guoquan Huang},
+  Author                   = {Nathaniel Merrill and Guoquan Huang},
   Booktitle                = {Proc. of Robotics: Science and Systems (RSS)},
   Year                     = {2018},
-
   Address                  = {Pittsburgh, PA},
-  Month                    = jun,
-  Note                     = {(accepted)},
-
-  Timestamp                = {2018.02.06}
+  Month                    = jun # { 26-30, }
 }
 ```
